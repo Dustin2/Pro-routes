@@ -4,7 +4,7 @@ import * as Animatable from 'react-native-animatable';
 export function SplashScreen({navigation}) {
   useEffect(() => {
     setTimeout(() => {
-      navigation.navigate('home');
+      navigation.navigate('main');
     }, 2000);
   }, []);
 
@@ -44,8 +44,6 @@ export function SplashScreen({navigation}) {
             color: '#ffff',
             fontFamily: 'bold',
             fontSize: 70,
-           
-
           }}>
           Hielo
         </Animatable.Text>

@@ -18,11 +18,7 @@ const theme = {
 };
 const App = () => {
   return (
-    // <View>
-    // <HelloWordScreen />
-    // <CounterScreen />
-    // </View>
-    <PaperProvider>
+    <PaperProvider theme={DefaultTheme}>
       <Navigation />
     </PaperProvider>
   );
