@@ -36,6 +36,7 @@ export const useGetData = () => {
           bag5kg: doc.data().bag5kg,
           bag15kg: doc.data().bag15kg,
           freezerSize: doc.data().freezerSize,
+          FrezzerAmount: doc.data().FrezzerAmount,
           createdDoc: doc.data().createdDoc,
         }));
         setStores(storesList);

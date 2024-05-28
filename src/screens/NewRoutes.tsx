@@ -13,8 +13,6 @@ import Geolocation from '@react-native-community/geolocation';
 //componets
 import {TextInputcus} from '../../componets/INPUT/TextInput';
 import {CText} from '../../componets/Text/CustomText';
-import {CDialog} from '../../componets/Dialog/CDialog';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {Picker} from '@react-native-picker/picker';
 
 //styles
@@ -28,6 +26,7 @@ import {collection, addDoc, serverTimestamp} from 'firebase/firestore';
 const initialstate = {
   storeName: '',
   codeName: '',
+  FrezzerAmount: '',
   bag1kg: 0,
   bag3kg: 0,
   bag5kg: 0,
@@ -40,6 +39,7 @@ export const NewRoutes = props => {
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [freezerSize, setFreezerSize] = useState('5 fts');
+
   const handlesaveRoute = () => {
     if (
       route.codeName === '' ||
@@ -54,75 +54,67 @@ export const NewRoutes = props => {
       Alert.alert('Confirmar', 'Desea guardar los cambios actuales?', [
         {
           text: 'Cancelar',
-          onPress: () => ToastAndroid.show('cancelado!', ToastAndroid.SHORT),
+          onPress: () => ToastAndroid.show('Cancelado!', ToastAndroid.SHORT),
           style: 'cancel',
         },
         {
           text: 'Guardar',
-          onPress: () => (
-            sendData(),
-            setRoute(initialstate),
-            setLatitude(''),
-            setLongitude(''),
-            setFreezerSize(''),
-            ToastAndroid.show('Acta registrada con exito!', ToastAndroid.SHORT)
-          ),
+          onPress: () => {
+            sendData();
+          },
           style: 'default',
         },
       ]);
     }
   };
-  //get permission to use gps
-  useEffect(() => {
+
+  async function requestLocationPermission() {
     if (Platform.OS === 'android') {
-      requestLocationPermission();
-    } else {
-      getLocation();
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Permiso de ubicación',
+            message: 'Esta aplicación necesita acceso a tu ubicación',
+            buttonNeutral: 'Preguntar luego',
+            buttonNegative: 'Cancelar',
+            buttonPositive: 'Aceptar',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Tienes acceso a la ubicación');
+        } else {
+          console.log('Permiso de ubicación denegado');
+        }
+      } catch (err) {
+        console.warn(err);
+      }
     }
+  }
+
+  useEffect(() => {
+    requestLocationPermission();
+    getLocation();
   }, []);
 
-  // change values of Tinputs
-  const handleChangeText = (name: string, value: string) => {
+  const handleChangeText = (name, value) => {
     setRoute({...route, [name]: value});
-    console.log(route);
   };
 
-  //get current location of user
-  const requestLocationPermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'Location Access Required',
-          message: 'This App needs to Access your location',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        // Permission Granted
-        getLocation();
-      } else {
-        alert('Permission Denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
   const getLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
         const {latitude, longitude} = position.coords;
-        console.log(position.coords.latitude);
         setLatitude(latitude.toString());
         setLongitude(longitude.toString());
-        console.log('Position:', position);
       },
       error => {
         console.error('Error:', error);
-        alert('Error getting location');
+        Alert.alert('Error getting location');
       },
       {
         enableHighAccuracy: true,
-        timeout: 15000,
+        timeout: 20000, // Aumenta el timeout a 20 segundos
         maximumAge: 10000,
       },
     );
@@ -136,21 +128,23 @@ export const NewRoutes = props => {
       longitude: longitude,
       phoneNumber: route.phoneNumber,
       freezerSize: freezerSize,
+      FrezzerAmount: route.FrezzerAmount,
       bag1kg: route.bag1kg,
       bag3kg: route.bag3kg,
       bag5kg: route.bag5kg,
       bag15kg: route.bag15kg,
-      createdDoc: new Date(),
+      createdDoc: serverTimestamp(),
     });
     setRoute(initialstate);
     setLatitude('');
     setLongitude('');
-    setFreezerSize('');
+    setFreezerSize('5 fts');
+    ToastAndroid.show('Ruta registrada con exito!', ToastAndroid.SHORT);
     props.navigation.navigate('home');
   };
 
-  const frezers = [
-    ' Casa',
+  const freezers = [
+    'Casa',
     '5 fts',
     '6 fts',
     '9 fts',
@@ -165,118 +159,111 @@ export const NewRoutes = props => {
       <CText color="black" text="Nombre del negocio" />
       <TextInputcus
         mode="outlined"
-        // label="nombre del negocio"
-        onChange={value => {
-          handleChangeText('storeName', value);
-        }}
+        value={route.storeName}
+        onChange={value => handleChangeText('storeName', value)}
       />
       <CText color="black" text="Nombre clave" />
       <TextInputcus
         mode="outlined"
-        onChange={value => {
-          handleChangeText('codeName', value);
-        }}
+        value={route.codeName}
+        onChange={value => handleChangeText('codeName', value)}
       />
       <CText color="black" text="Numero de telefono" />
       <TextInputcus
         mode="outlined"
         keyboardType="numeric"
-        onChange={value => {
-          handleChangeText('phoneNumber', value);
-        }}
+        value={route.phoneNumber}
+        onChange={value => handleChangeText('phoneNumber', value)}
       />
-      <View style={{padding: 10}}>
+      {/* <View style={{padding: 10}}>
         <CButton
           mode="outlined"
-          text="obtener ubicacion actual"
-          onPress={() => {
-            // getLocation();
-          }}
+          text="Obtener ubicacion actual"
+          onPress={getLocation}
         />
-      </View>
+      </View> */}
       <CText color="black" text="Ubicacion" />
       <TextInputcus
         mode="outlined"
-        label={'Latitude: ' + latitude}
+        value={'Latitude: ' + latitude}
+        // editable={false}
         disable
-        onChange={value => {
-          handleChangeText('latitude', value);
-        }}
       />
-
       <TextInputcus
         mode="outlined"
-        label={'Longitude: ' + longitude}
+        value={'Longitude: ' + longitude}
+        // editable={false}
         disable
-        onChange={value => {
-          handleChangeText('longitude', value);
-        }}
       />
       <CText color="black" text="Tamaño de congelador" />
-      <Picker
-        selectedValue={freezerSize}
-        onValueChange={(itemValue, itemIndex) => setFreezerSize(itemValue)}>
-        {frezers.map((frezerSize, i) => {
-          return (
-            <Picker.Item
-              key={i}
-              label={frezerSize}
-              value={frezerSize}
-              color="black"
-            />
-          );
-        })}
-      </Picker>
+      {/* / picker */}
+      <View style={styles.containerPicker}>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={freezerSize}
+            onValueChange={itemValue => setFreezerSize(itemValue)}
+            style={styles.picker}
+            itemStyle={styles.pickerItem}>
+            {freezers.map((size, index) => (
+              <Picker.Item key={index} label={size} value={size} />
+            ))}
+          </Picker>
+        </View>
+      </View>
 
+      {/* mini-inputs */}
       <View style={styles.inputContainer}>
-        <CText color="black" text="bolsa 1 kg" tyle={styles.smallInput} />
-        <CText color="black" text="bolsa 3 kg" tyle={styles.smallInput} />
-        <CText color="black" text="bolsa 5 kg" tyle={styles.smallInput} />
-        <CText color="black" text="bolsa 15 kg" tyle={styles.smallInput} />
+        <CText color="black" text="bolsa 1 kg" style={styles.smallInput} />
+        <CText color="black" text="bolsa 3 kg" style={styles.smallInput} />
+        <CText color="black" text="bolsa 5 kg" style={styles.smallInput} />
+        <CText color="black" text="bolsa 15 kg" style={styles.smallInput} />
       </View>
+      {/* mini-inputs */}
       <View style={styles.inputContainer}>
         <TextInputcus
           style={styles.smallInput}
           mode="outlined"
           keyboardType="numeric"
-          onChange={value => {
-            handleChangeText('bag1kg', value);
-          }}
+          value={route.bag1kg.toString()}
+          onChange={value => handleChangeText('bag1kg', value)}
         />
         <TextInputcus
           style={styles.smallInput}
           mode="outlined"
           keyboardType="numeric"
-          onChange={value => {
-            handleChangeText('bag3kg', value);
-          }}
+          value={route.bag3kg.toString()}
+          onChange={value => handleChangeText('bag3kg', value)}
         />
         <TextInputcus
           style={styles.smallInput}
           mode="outlined"
           keyboardType="numeric"
-          onChange={value => {
-            handleChangeText('bag5kg', value);
-          }}
+          value={route.bag5kg.toString()}
+          onChange={value => handleChangeText('bag5kg', value)}
         />
         <TextInputcus
           style={styles.smallInput}
           mode="outlined"
           keyboardType="numeric"
-          onChange={value => {
-            handleChangeText('bag15kg', value);
-          }}
+          value={route.bag15kg.toString()}
+          onChange={value => handleChangeText('bag15kg', value)}
         />
       </View>
+      <CText color="black" text="Cantidad de congeladores" />
+      <TextInputcus
+        mode="outlined"
+        value={route.FrezzerAmount}
+        keyboardType="numeric"
+        // editable={false}
+        // disable
+      />
       <View style={{padding: 10}}>
         <CButton
           mode="outlined"
           textColor="white"
           text="Guardar"
           dark={false}
-          onPress={() => {
-            handlesaveRoute();
-          }}
+          onPress={handlesaveRoute}
           buttonColor="#006d77"
           rippleColor={'#6a994e'}
         />
@@ -284,6 +271,7 @@ export const NewRoutes = props => {
     </ScrollView>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -298,10 +286,31 @@ const styles = StyleSheet.create({
   },
   smallInput: {
     height: 60,
-    width: '40%', // Ajusta este valor según tus necesidades
+    width: '20%', // Ajusta este valor según tus necesidades
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 6,
+  },
+  containerPicker: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    overflow: 'hidden',
+    backgroundColor: 'white',
+  },
+  picker: {
+    height: 50,
+    width: 385,
+    color: 'black', // Color del texto seleccionado (funciona en iOS)
+  },
+  pickerItem: {
+    color: 'black', // Color del texto de los ítems (funciona en Android)
   },
 });
