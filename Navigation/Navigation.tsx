@@ -13,6 +13,7 @@ import {SplashScreen} from '../src/screens/SplashScreen';
 import {CustomDrawer} from './CustomDrawer';
 import {Colors} from '../src/Colors';
 import {Events} from '../src/screens/Events';
+import EditStore from '../src/screens/EditStore';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -47,7 +48,13 @@ const DrawerNavigator = () => {
           title: ' Agregar nueva ruta',
         }}
       />
-      <Drawer.Screen name="map" component={MapsStores} />
+      <Drawer.Screen
+        name="map"
+        component={MapsStores}
+        options={{
+          title: 'Rutas',
+        }}
+      />
       <Drawer.Screen
         name="events"
         component={Events}
@@ -74,6 +81,11 @@ export const Navigation = () => {
           options={{
             headerShown: false,
           }}
+        />
+        <Stack.Screen
+          name="editStore"
+          component={EditStore}
+          options={{title: 'Editar tienda'}}
         />
       </Stack.Navigator>
     </NavigationContainer>
