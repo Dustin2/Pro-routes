@@ -22,6 +22,8 @@ import CButton from '../../componets/Button/CButton';
 //firebase
 import {database} from '../../firebase/Config';
 import {collection, addDoc, serverTimestamp} from 'firebase/firestore';
+import {CChip} from '../../componets/Chip/CChip';
+import {DaysOfWeekChips} from '../../componets/Chip/DayOfWeek';
 
 const initialstate = {
   storeName: '',
@@ -33,12 +35,22 @@ const initialstate = {
   bag15kg: 0,
   phoneNumber: '',
 };
+const daysOfWeek = [
+  'Lunes',
+  'Martes',
+  'Miercoles',
+  'Jueves',
+  'Viernes',
+  'Sabado',
+  'Domingo',
+];
 
 export const NewRoutes = props => {
   const [route, setRoute] = useState(initialstate);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [freezerSize, setFreezerSize] = useState('5 fts');
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
   const handlesaveRoute = () => {
     if (
@@ -68,6 +80,15 @@ export const NewRoutes = props => {
     }
   };
 
+  const handleSelect = (label: string) => {
+    setSelectedDays(prevSelectedDays => {
+      if (prevSelectedDays.includes(label)) {
+        return prevSelectedDays.filter(day => day !== label);
+      } else {
+        return [...prevSelectedDays, label];
+      }
+    });
+  };
   async function requestLocationPermission() {
     if (Platform.OS === 'android') {
       try {
@@ -175,13 +196,13 @@ export const NewRoutes = props => {
         value={route.phoneNumber}
         onChange={value => handleChangeText('phoneNumber', value)}
       />
-      {/* <View style={{padding: 10}}>
+      <View style={{padding: 10}}>
         <CButton
           mode="outlined"
           text="Obtener ubicacion actual"
           onPress={getLocation}
         />
-      </View> */}
+      </View>
       <CText color="black" text="Ubicacion" />
       <TextInputcus
         mode="outlined"
@@ -257,6 +278,16 @@ export const NewRoutes = props => {
         // editable={false}
         // disable
       />
+      <View style={styles.chip}>
+        {daysOfWeek.map(day => (
+          <CChip
+            key={day}
+            text={day}
+            isSelected={selectedDays.includes(day)}
+            onSelect={handleSelect}
+          />
+        ))}
+      </View>
       <View style={{padding: 10}}>
         <CButton
           mode="outlined"
@@ -312,5 +343,11 @@ const styles = StyleSheet.create({
   },
   pickerItem: {
     color: 'black', // Color del texto de los ítems (funciona en Android)
+  },
+  chip: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    padding: 10,
   },
 });
