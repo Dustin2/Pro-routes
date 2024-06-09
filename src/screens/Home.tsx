@@ -7,10 +7,9 @@ import {
   SafeAreaView,
   FlatList,
 } from 'react-native';
-import {List, Avatar} from 'react-native-paper';
+import {List, Avatar, Searchbar} from 'react-native-paper';
 import CButton from '../../componets/Button/CButton';
 import { useNavigation } from '@react-navigation/native';
-
 
 //custom hooks
 import {useGetData} from '../hooks/useGetData';
@@ -20,6 +19,7 @@ import {useGetData} from '../hooks/useGetData';
 export const Home = () => {
   const navigation = useNavigation();
   const [expanded, setExpanded] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const {stores} = useGetData();
 
   const handlePress = () => setExpanded(!expanded);
@@ -38,6 +38,7 @@ export const Home = () => {
       console.error('Error updating document: ', error);
     }
   };
+
   const renderItem = ({item}: {item: Store}) => (
     <List.Section focusable style={{margin: -2}}>
       <List.Accordion
@@ -68,10 +69,21 @@ export const Home = () => {
     </List.Section>
   );
 
+  //filter store to serch anyone
+  const filteredStores = stores.filter(store =>
+    store.storeName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <SafeAreaView style={styles.container}>
+      <Searchbar
+        placeholder="Buscar tienda"
+        onChangeText={query => setSearchQuery(query)}
+        value={searchQuery}
+        style={styles.searchbar}
+      />
       <FlatList
-        data={stores}
+        data={filteredStores}
         keyExtractor={item => item.id}
         renderItem={renderItem}
       />
@@ -84,7 +96,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
-
+  searchbar: {
+    margin: 10,
+  },
   title: {
     fontSize: 32,
   },
