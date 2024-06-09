@@ -59,6 +59,8 @@ export const useLocation = () => {
     latitude,
     longitude,
     getLocation,
+    setLatitude,
+    setLongitude,
   };
 };
 

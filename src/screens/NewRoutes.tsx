@@ -1,15 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  Alert,
-  ToastAndroid,
-  PermissionsAndroid,
-  Platform,
-  StyleSheet,
-} from 'react-native';
-import Geolocation from '@react-native-community/geolocation';
+import {ScrollView, View, Alert, ToastAndroid, StyleSheet} from 'react-native';
+import {Chip} from 'react-native-paper';
 //componets
 import {TextInputcus} from '../../componets/INPUT/TextInput';
 import {CText} from '../../componets/Text/CustomText';
@@ -22,7 +13,6 @@ import CButton from '../../componets/Button/CButton';
 //firebase
 import {database} from '../../firebase/Config';
 import {collection, addDoc, serverTimestamp} from 'firebase/firestore';
-import {CChip} from '../../componets/Chip/CChip';
 
 //hooks
 import {useLocation} from '../hooks/useLocation';
@@ -36,21 +26,16 @@ const initialstate = {
   bag15kg: 0,
   phoneNumber: '',
 };
-const daysOfWeek = [
-  'Lunes',
-  'Martes',
-  'Miercoles',
-  'Jueves',
-  'Viernes',
-  'Sabado',
-  'Domingo',
-];
+
+//data arrays etc
+import {freezers} from '../data/freezers';
+import {daysOfWeek} from '../data/daysOfWeek';
 
 export const NewRoutes = props => {
-  const {getLocation, latitude, longitude} = useLocation();
+  const {getLocation, latitude, longitude, setLatitude, setLongitude} =
+    useLocation();
   const [route, setRoute] = useState(initialstate);
-  // const [latitude, setLatitude] = useState('');
-  // const [longitude, setLongitude] = useState('');
+  const [selectedDays, setSelectedDays] = useState([]);
   const [freezerSize, setFreezerSize] = useState('5 fts');
 
   const handlesaveRoute = () => {
@@ -81,57 +66,9 @@ export const NewRoutes = props => {
     }
   };
 
-  // async function requestLocationPermission() {
-  //   if (Platform.OS === 'android') {
-  //     try {
-  //       const granted = await PermissionsAndroid.request(
-  //         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-  //         {
-  //           title: 'Permiso de ubicación',
-  //           message: 'Esta aplicación necesita acceso a tu ubicación',
-  //           buttonNeutral: 'Preguntar luego',
-  //           buttonNegative: 'Cancelar',
-  //           buttonPositive: 'Aceptar',
-  //         },
-  //       );
-  //       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //         console.log('Tienes acceso a la ubicación');
-  //       } else {
-  //         console.log('Permiso de ubicación denegado');
-  //       }
-  //     } catch (err) {
-  //       console.warn(err);
-  //     }
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   requestLocationPermission();
-  //   getLocation();
-  // }, []);
-
   const handleChangeText = (name, value) => {
     setRoute({...route, [name]: value});
   };
-
-  // const getLocation = () => {
-  //   Geolocation.getCurrentPosition(
-  //     position => {
-  //       const {latitude, longitude} = position.coords;
-  //       setLatitude(latitude.toString());
-  //       setLongitude(longitude.toString());
-  //     },
-  //     error => {
-  //       console.error('Error:', error);
-  //       Alert.alert('Error getting location');
-  //     },
-  //     {
-  //       enableHighAccuracy: true,
-  //       timeout: 20000, // Aumenta el timeout a 20 segundos
-  //       maximumAge: 10000,
-  //     },
-  //   );
-  // };
 
   const sendData = async () => {
     await addDoc(collection(database, 'info-stores'), {
@@ -146,6 +83,7 @@ export const NewRoutes = props => {
       bag3kg: route.bag3kg,
       bag5kg: route.bag5kg,
       bag15kg: route.bag15kg,
+      daysOfWeek: selectedDays,
       createdDoc: serverTimestamp(),
     });
     setRoute(initialstate);
@@ -156,17 +94,13 @@ export const NewRoutes = props => {
     props.navigation.navigate('home');
   };
 
-  const freezers = [
-    'Casa',
-    '5 fts',
-    '6 fts',
-    '9 fts',
-    '11 fts',
-    '13 fts',
-    '15 fts',
-    '25 fts',
-  ];
-
+  const toggleDay = dayId => {
+    setSelectedDays(prevSelectedDays =>
+      prevSelectedDays.includes(dayId)
+        ? prevSelectedDays.filter(id => id !== dayId)
+        : [...prevSelectedDays, dayId],
+    );
+  };
   return (
     <ScrollView style={GlobalStyles.container}>
       <CText color="black" text="Nombre del negocio" />
@@ -270,15 +204,19 @@ export const NewRoutes = props => {
         // editable={false}
         // disable
       />
-      <View style={styles.chip}>
-        {daysOfWeek.map(day => (
-          <CChip
-            key={day}
-            text={day}
-            isSelected={selectedDays.includes(day)}
-            onSelect={handleSelect}
-          />
-        ))}
+      <View style={styles.containerChips}>
+        <CText color={'black'} text={'Seleccione los días para la visita:'} />
+        <View style={styles.chipContainer}>
+          {daysOfWeek.map(day => (
+            <Chip
+              key={day.id}
+              selected={selectedDays.includes(day.id)}
+              onPress={() => toggleDay(day.id)}
+              style={styles.chip}>
+              {day.label}
+            </Chip>
+          ))}
+        </View>
       </View>
       <View style={{padding: 10}}>
         <CButton
@@ -341,5 +279,21 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     padding: 10,
+  },
+  containerChips: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 18,
+    marginBottom: 16,
+  },
+  chipContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  chip: {
+    margin: 4,
   },
 });

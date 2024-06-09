@@ -1,6 +1,13 @@
 // Import the functions you need from the SDKs you need
 import {initializeApp} from 'firebase/app';
-
+import {
+  apiKey,
+  authDomain,
+  projectId,
+  storageBucket,
+  messagingSenderId,
+  appId,
+} from '@env';
 import {
   getFirestore,
   collection,
@@ -15,15 +22,22 @@ import {
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: 'AIzaSyCMD405SFjngHCtlPzI-sjd7HYSJhzgaZQ',
-  authDomain: 'test-1b3df.firebaseapp.com',
-  projectId: 'test-1b3df',
-  storageBucket: 'test-1b3df.appspot.com',
-  messagingSenderId: '206453184442',
-  appId: '1:206453184442:web:4cfd6c6a0425f06850af83',
+  apiKey: apiKey,
+  authDomain: authDomain,
+  projectId: projectId,
+  storageBucket: storageBucket,
+  messagingSenderId: messagingSenderId,
+  appId: appId,
 };
 
 // Initialize Firebase
 initializeApp(firebaseConfig);
 export const database = getFirestore();
-export default  {collection, addDoc, onSnapshot, serverTimestamp, query, orderBy};
+export default {
+  collection,
+  addDoc,
+  onSnapshot,
+  serverTimestamp,
+  query,
+  orderBy,
+};
