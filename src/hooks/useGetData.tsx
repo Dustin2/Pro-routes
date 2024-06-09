@@ -1,19 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 
 //interfaces
-import { Store } from '../interfaces/Store';
+import {Store} from '../interfaces/Store';
 
 //firebase
-import { database } from '../../firebase/Config';
-import {
-  collection,
-  onSnapshot,
-  query,
-  orderBy,
-} from 'firebase/firestore';
+import {database} from '../../firebase/Config';
+import {collection, onSnapshot, query, orderBy} from 'firebase/firestore';
 
 export const useGetData = () => {
   const [stores, setStores] = useState<Store[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,8 +18,9 @@ export const useGetData = () => {
       orderBy('storeName', 'desc'),
     );
 
-    const unsubscribe = onSnapshot(q,
-      (querySnapshot) => {
+    const unsubscribe = onSnapshot(
+      q,
+      querySnapshot => {
         const storesList: Store[] = querySnapshot.docs.map(doc => ({
           id: doc.id,
           storeName: doc.data().storeName,
@@ -40,11 +37,13 @@ export const useGetData = () => {
           createdDoc: doc.data().createdDoc,
         }));
         setStores(storesList);
+        setLoading(false);
       },
-      (error) => {
-        console.error("Error fetching data: ", error);
-        setError("Error fetching data");
-      }
+      err => {
+        console.error(error);
+        setError(error);
+        setLoading(false);
+      },
     );
 
     return () => unsubscribe();
@@ -53,6 +52,7 @@ export const useGetData = () => {
   return {
     stores,
     error,
+    loading,
   };
 };
 
