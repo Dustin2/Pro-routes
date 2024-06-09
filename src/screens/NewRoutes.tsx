@@ -22,7 +22,10 @@ import CButton from '../../componets/Button/CButton';
 //firebase
 import {database} from '../../firebase/Config';
 import {collection, addDoc, serverTimestamp} from 'firebase/firestore';
+import {CChip} from '../../componets/Chip/CChip';
 
+//hooks
+import {useLocation} from '../hooks/useLocation';
 const initialstate = {
   storeName: '',
   codeName: '',
@@ -33,11 +36,21 @@ const initialstate = {
   bag15kg: 0,
   phoneNumber: '',
 };
+const daysOfWeek = [
+  'Lunes',
+  'Martes',
+  'Miercoles',
+  'Jueves',
+  'Viernes',
+  'Sabado',
+  'Domingo',
+];
 
 export const NewRoutes = props => {
+  const {getLocation, latitude, longitude} = useLocation();
   const [route, setRoute] = useState(initialstate);
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+  // const [latitude, setLatitude] = useState('');
+  // const [longitude, setLongitude] = useState('');
   const [freezerSize, setFreezerSize] = useState('5 fts');
 
   const handlesaveRoute = () => {
@@ -68,57 +81,57 @@ export const NewRoutes = props => {
     }
   };
 
-  async function requestLocationPermission() {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: 'Permiso de ubicación',
-            message: 'Esta aplicación necesita acceso a tu ubicación',
-            buttonNeutral: 'Preguntar luego',
-            buttonNegative: 'Cancelar',
-            buttonPositive: 'Aceptar',
-          },
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('Tienes acceso a la ubicación');
-        } else {
-          console.log('Permiso de ubicación denegado');
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    }
-  }
+  // async function requestLocationPermission() {
+  //   if (Platform.OS === 'android') {
+  //     try {
+  //       const granted = await PermissionsAndroid.request(
+  //         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  //         {
+  //           title: 'Permiso de ubicación',
+  //           message: 'Esta aplicación necesita acceso a tu ubicación',
+  //           buttonNeutral: 'Preguntar luego',
+  //           buttonNegative: 'Cancelar',
+  //           buttonPositive: 'Aceptar',
+  //         },
+  //       );
+  //       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //         console.log('Tienes acceso a la ubicación');
+  //       } else {
+  //         console.log('Permiso de ubicación denegado');
+  //       }
+  //     } catch (err) {
+  //       console.warn(err);
+  //     }
+  //   }
+  // }
 
-  useEffect(() => {
-    requestLocationPermission();
-    getLocation();
-  }, []);
+  // useEffect(() => {
+  //   requestLocationPermission();
+  //   getLocation();
+  // }, []);
 
   const handleChangeText = (name, value) => {
     setRoute({...route, [name]: value});
   };
 
-  const getLocation = () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const {latitude, longitude} = position.coords;
-        setLatitude(latitude.toString());
-        setLongitude(longitude.toString());
-      },
-      error => {
-        console.error('Error:', error);
-        Alert.alert('Error getting location');
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 20000, // Aumenta el timeout a 20 segundos
-        maximumAge: 10000,
-      },
-    );
-  };
+  // const getLocation = () => {
+  //   Geolocation.getCurrentPosition(
+  //     position => {
+  //       const {latitude, longitude} = position.coords;
+  //       setLatitude(latitude.toString());
+  //       setLongitude(longitude.toString());
+  //     },
+  //     error => {
+  //       console.error('Error:', error);
+  //       Alert.alert('Error getting location');
+  //     },
+  //     {
+  //       enableHighAccuracy: true,
+  //       timeout: 20000, // Aumenta el timeout a 20 segundos
+  //       maximumAge: 10000,
+  //     },
+  //   );
+  // };
 
   const sendData = async () => {
     await addDoc(collection(database, 'info-stores'), {
@@ -175,13 +188,13 @@ export const NewRoutes = props => {
         value={route.phoneNumber}
         onChange={value => handleChangeText('phoneNumber', value)}
       />
-      {/* <View style={{padding: 10}}>
+      <View style={{padding: 10}}>
         <CButton
           mode="outlined"
           text="Obtener ubicacion actual"
           onPress={getLocation}
         />
-      </View> */}
+      </View>
       <CText color="black" text="Ubicacion" />
       <TextInputcus
         mode="outlined"
@@ -257,6 +270,16 @@ export const NewRoutes = props => {
         // editable={false}
         // disable
       />
+      <View style={styles.chip}>
+        {daysOfWeek.map(day => (
+          <CChip
+            key={day}
+            text={day}
+            isSelected={selectedDays.includes(day)}
+            onSelect={handleSelect}
+          />
+        ))}
+      </View>
       <View style={{padding: 10}}>
         <CButton
           mode="outlined"
@@ -312,5 +335,11 @@ const styles = StyleSheet.create({
   },
   pickerItem: {
     color: 'black', // Color del texto de los ítems (funciona en Android)
+  },
+  chip: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    padding: 10,
   },
 });
