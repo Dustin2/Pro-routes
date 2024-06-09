@@ -23,8 +23,9 @@ import CButton from '../../componets/Button/CButton';
 import {database} from '../../firebase/Config';
 import {collection, addDoc, serverTimestamp} from 'firebase/firestore';
 import {CChip} from '../../componets/Chip/CChip';
-import {DaysOfWeekChips} from '../../componets/Chip/DayOfWeek';
 
+//hooks
+import {useLocation} from '../hooks/useLocation';
 const initialstate = {
   storeName: '',
   codeName: '',
@@ -46,11 +47,11 @@ const daysOfWeek = [
 ];
 
 export const NewRoutes = props => {
+  const {getLocation, latitude, longitude} = useLocation();
   const [route, setRoute] = useState(initialstate);
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+  // const [latitude, setLatitude] = useState('');
+  // const [longitude, setLongitude] = useState('');
   const [freezerSize, setFreezerSize] = useState('5 fts');
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
   const handlesaveRoute = () => {
     if (
@@ -80,66 +81,57 @@ export const NewRoutes = props => {
     }
   };
 
-  const handleSelect = (label: string) => {
-    setSelectedDays(prevSelectedDays => {
-      if (prevSelectedDays.includes(label)) {
-        return prevSelectedDays.filter(day => day !== label);
-      } else {
-        return [...prevSelectedDays, label];
-      }
-    });
-  };
-  async function requestLocationPermission() {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: 'Permiso de ubicación',
-            message: 'Esta aplicación necesita acceso a tu ubicación',
-            buttonNeutral: 'Preguntar luego',
-            buttonNegative: 'Cancelar',
-            buttonPositive: 'Aceptar',
-          },
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('Tienes acceso a la ubicación');
-        } else {
-          console.log('Permiso de ubicación denegado');
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    }
-  }
+  // async function requestLocationPermission() {
+  //   if (Platform.OS === 'android') {
+  //     try {
+  //       const granted = await PermissionsAndroid.request(
+  //         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  //         {
+  //           title: 'Permiso de ubicación',
+  //           message: 'Esta aplicación necesita acceso a tu ubicación',
+  //           buttonNeutral: 'Preguntar luego',
+  //           buttonNegative: 'Cancelar',
+  //           buttonPositive: 'Aceptar',
+  //         },
+  //       );
+  //       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //         console.log('Tienes acceso a la ubicación');
+  //       } else {
+  //         console.log('Permiso de ubicación denegado');
+  //       }
+  //     } catch (err) {
+  //       console.warn(err);
+  //     }
+  //   }
+  // }
 
-  useEffect(() => {
-    requestLocationPermission();
-    getLocation();
-  }, []);
+  // useEffect(() => {
+  //   requestLocationPermission();
+  //   getLocation();
+  // }, []);
 
   const handleChangeText = (name, value) => {
     setRoute({...route, [name]: value});
   };
 
-  const getLocation = () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const {latitude, longitude} = position.coords;
-        setLatitude(latitude.toString());
-        setLongitude(longitude.toString());
-      },
-      error => {
-        console.error('Error:', error);
-        Alert.alert('Error getting location');
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 20000, // Aumenta el timeout a 20 segundos
-        maximumAge: 10000,
-      },
-    );
-  };
+  // const getLocation = () => {
+  //   Geolocation.getCurrentPosition(
+  //     position => {
+  //       const {latitude, longitude} = position.coords;
+  //       setLatitude(latitude.toString());
+  //       setLongitude(longitude.toString());
+  //     },
+  //     error => {
+  //       console.error('Error:', error);
+  //       Alert.alert('Error getting location');
+  //     },
+  //     {
+  //       enableHighAccuracy: true,
+  //       timeout: 20000, // Aumenta el timeout a 20 segundos
+  //       maximumAge: 10000,
+  //     },
+  //   );
+  // };
 
   const sendData = async () => {
     await addDoc(collection(database, 'info-stores'), {

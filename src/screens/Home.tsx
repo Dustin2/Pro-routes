@@ -20,7 +20,7 @@ import {useGetData} from '../hooks/useGetData';
 export const Home = () => {
   const navigation = useNavigation();
   const [expanded, setExpanded] = useState(true);
-  const {stores, error} = useGetData();
+  const {stores} = useGetData();
 
   const handlePress = () => setExpanded(!expanded);
 

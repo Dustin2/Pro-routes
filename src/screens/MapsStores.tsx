@@ -1,14 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Text, Button} from 'react-native';
+
+//maps
 import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import {mapsConfig} from '../../maps/mapsConfig';
+import {GOOGLE_MAPS_APIKEY} from '@env';
+
+//firebase
 import {database} from '../../firebase/Config';
 import {collection, onSnapshot, query, orderBy} from 'firebase/firestore';
-import {Store} from '../interfaces/Store';
-import {useGetData} from '../hooks/useGetData';
 
-const GOOGLE_MAPS_APIKEY = 'AIzaSyAzCvN9qNThT_IoVEZGiuSO6MTlwHdvG_U';
+//interfaces
+import {Store} from '../interfaces/Store';
+
 
 const MapsStores = () => {
   const [stores, setStores] = useState<Store[]>([]);
