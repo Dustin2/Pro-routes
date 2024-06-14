@@ -1,106 +1,50 @@
-import React, {useEffect, useState} from 'react';
-import {ScrollView, View, Alert, ToastAndroid, StyleSheet} from 'react-native';
+// core
+import React from 'react';
+import {ScrollView, View, StyleSheet} from 'react-native';
 import {Chip} from 'react-native-paper';
+
+//tempo
+import {format} from '@formkit/tempo';
+
+//external componets
+import {Picker} from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 //componets
+import CButton from '../../componets/Button/CButton';
 import {TextInputcus} from '../../componets/INPUT/TextInput';
 import {CText} from '../../componets/Text/CustomText';
-import {Picker} from '@react-native-picker/picker';
 
 //styles
 import {GlobalStyles} from '../GlobalStyles';
-import CButton from '../../componets/Button/CButton';
-
-//firebase
-import {database} from '../../firebase/Config';
-import {collection, addDoc, serverTimestamp} from 'firebase/firestore';
+import {Colors} from '../Colors';
 
 //hooks
-import {useLocation} from '../hooks/useLocation';
-const initialstate = {
-  storeName: '',
-  codeName: '',
-  FrezzerAmount: '',
-  bag1kg: 0,
-  bag3kg: 0,
-  bag5kg: 0,
-  bag15kg: 0,
-  phoneNumber: '',
-};
+import {useNewStore} from '../hooks/useNewStores';
 
-//data arrays etc
-import {freezers} from '../data/freezers';
+//data ararys
 import {daysOfWeek} from '../data/daysOfWeek';
+import {freezers} from '../data/freezers';
+export const NewStore = props => {
+  const {
+    route,
+    latitude,
+    longitude,
+    date,
+    isDatePickerVisible,
+    selectedDays,
+    freezerSize,
+    showDatePicker,
+    hideDatePicker,
+    handleConfirm,
+    handleChangeText,
+    toggleDay,
+    handlesaveRoute,
+    getLocation,
+    // freezers,
+    setFreezerSize
+    // daysOfWeek,
+  } = useNewStore(props);
 
-export const NewRoutes = props => {
-  const {getLocation, latitude, longitude, setLatitude, setLongitude} =
-    useLocation();
-  const [route, setRoute] = useState(initialstate);
-  const [selectedDays, setSelectedDays] = useState([]);
-  const [freezerSize, setFreezerSize] = useState('5 fts');
-
-  const handlesaveRoute = () => {
-    if (
-      route.codeName === '' ||
-      route.phoneNumber === '' ||
-      route.storeName === ''
-    ) {
-      Alert.alert(
-        'Error Campos invalidos',
-        'Porfavor completa todos los campos',
-      );
-    } else {
-      Alert.alert('Confirmar', 'Desea guardar los cambios actuales?', [
-        {
-          text: 'Cancelar',
-          onPress: () => ToastAndroid.show('Cancelado!', ToastAndroid.SHORT),
-          style: 'cancel',
-        },
-        {
-          text: 'Guardar',
-          onPress: () => {
-            sendData();
-          },
-          style: 'default',
-        },
-      ]);
-    }
-  };
-
-  const handleChangeText = (name, value) => {
-    setRoute({...route, [name]: value});
-  };
-
-  const sendData = async () => {
-    await addDoc(collection(database, 'info-stores'), {
-      storeName: route.storeName,
-      codeName: route.codeName,
-      latitude: latitude,
-      longitude: longitude,
-      phoneNumber: route.phoneNumber,
-      freezerSize: freezerSize,
-      FrezzerAmount: route.FrezzerAmount,
-      bag1kg: route.bag1kg,
-      bag3kg: route.bag3kg,
-      bag5kg: route.bag5kg,
-      bag15kg: route.bag15kg,
-      daysOfWeek: selectedDays,
-      createdDoc: serverTimestamp(),
-    });
-    setRoute(initialstate);
-    setLatitude('');
-    setLongitude('');
-    setFreezerSize('5 fts');
-    ToastAndroid.show('Ruta registrada con exito!', ToastAndroid.SHORT);
-    props.navigation.navigate('home');
-  };
-
-  const toggleDay = dayId => {
-    setSelectedDays(prevSelectedDays =>
-      prevSelectedDays.includes(dayId)
-        ? prevSelectedDays.filter(id => id !== dayId)
-        : [...prevSelectedDays, dayId],
-    );
-  };
   return (
     <ScrollView style={GlobalStyles.container}>
       <CText color="black" text="Nombre del negocio" />
@@ -130,20 +74,9 @@ export const NewRoutes = props => {
         />
       </View>
       <CText color="black" text="Ubicacion" />
-      <TextInputcus
-        mode="outlined"
-        value={'Latitude: ' + latitude}
-        // editable={false}
-        disable
-      />
-      <TextInputcus
-        mode="outlined"
-        value={'Longitude: ' + longitude}
-        // editable={false}
-        disable
-      />
+      <TextInputcus mode="outlined" value={'Latitude: ' + latitude} disable />
+      <TextInputcus mode="outlined" value={'Longitude: ' + longitude} disable />
       <CText color="black" text="Tamaño de congelador" />
-      {/* / picker */}
       <View style={styles.containerPicker}>
         <View style={styles.pickerContainer}>
           <Picker
@@ -157,15 +90,12 @@ export const NewRoutes = props => {
           </Picker>
         </View>
       </View>
-
-      {/* mini-inputs */}
       <View style={styles.inputContainer}>
         <CText color="black" text="bolsa 1 kg" style={styles.smallInput} />
         <CText color="black" text="bolsa 3 kg" style={styles.smallInput} />
         <CText color="black" text="bolsa 5 kg" style={styles.smallInput} />
         <CText color="black" text="bolsa 15 kg" style={styles.smallInput} />
       </View>
-      {/* mini-inputs */}
       <View style={styles.inputContainer}>
         <TextInputcus
           style={styles.smallInput}
@@ -201,8 +131,7 @@ export const NewRoutes = props => {
         mode="outlined"
         value={route.FrezzerAmount}
         keyboardType="numeric"
-        // editable={false}
-        // disable
+        onChange={value => handleChangeText('FrezzerAmount', value)}
       />
       <View style={styles.containerChips}>
         <CText color={'black'} text={'Seleccione los días para la visita:'} />
@@ -216,6 +145,31 @@ export const NewRoutes = props => {
               {day.label}
             </Chip>
           ))}
+        </View>
+      </View>
+      <View>
+        {isDatePickerVisible && (
+          <DateTimePicker
+            value={date}
+            mode="time"
+            onChange={(event, selectedDate) =>
+              handleConfirm(selectedDate || date)
+            }
+            display="default"
+          />
+        )}
+        <TextInputcus
+          label={'visitar antes de las: ' + format(date, {time: 'short'})}
+          disable
+          mode="outlined"
+        />
+        <View style={{padding: 10}}>
+          <CButton
+            text="Selecciona el horario de visita"
+            onPress={showDatePicker}
+            buttonColor={Colors.secondary}
+            textColor="white"
+          />
         </View>
       </View>
       <View style={{padding: 10}}>
@@ -247,7 +201,7 @@ const styles = StyleSheet.create({
   },
   smallInput: {
     height: 60,
-    width: '20%', // Ajusta este valor según tus necesidades
+    width: '20%',
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 5,
@@ -269,16 +223,13 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: 385,
-    color: 'black', // Color del texto seleccionado (funciona en iOS)
+    color: 'black',
   },
   pickerItem: {
-    color: 'black', // Color del texto de los ítems (funciona en Android)
+    color: 'black',
   },
   chip: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    padding: 10,
+    margin: 4,
   },
   containerChips: {
     padding: 16,
@@ -292,8 +243,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-  },
-  chip: {
-    margin: 4,
   },
 });
