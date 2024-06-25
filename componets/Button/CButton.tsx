@@ -13,7 +13,7 @@ interface CButtonProps {
   icon?: string;
   onPress?: () => void;
 }
-const CButton = ({
+export const CButton = ({
   text,
   buttonColor,
   mode,
@@ -42,4 +42,3 @@ const CButton = ({
 
 const styles = StyleSheet.create({});
 
-export default CButton;

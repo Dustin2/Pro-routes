@@ -4,7 +4,8 @@ import * as Animatable from 'react-native-animatable';
 export function SplashScreen({navigation}) {
   useEffect(() => {
     setTimeout(() => {
-      navigation.navigate('main');
+      navigation.navigate('login');
+      // navigation.navigate('main');
     }, 2000);
   }, []);
 
@@ -16,16 +17,7 @@ export function SplashScreen({navigation}) {
         justifyContent: 'center',
         backgroundColor: '#0097B2',
       }}>
-      {/* this text is used in splash screen with props */}
-      {/* <Animatable.Image
-        style={{width: 400, height: 50}}
-        //with use image from api
-        // source={{
-        //   uri: 'https://bwgateway.centralinformatica.com/Recursos/CentralInformatica/LogoCI_web.png',
-        // }}
-        //whit local image
-        source={require('../img/splash.png')}
-      /> */}
+ 
       <Animatable.Text
         animation="bounceIn"
         duration={2000}

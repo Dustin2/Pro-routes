@@ -12,7 +12,9 @@ import {CustomDrawer} from './CustomDrawer';
 import {Colors} from '../src/Colors';
 import {Events} from '../src/screens/Events';
 import EditStore from '../src/screens/EditStore';
-import { NewStore } from '../src/screens/NewStores';
+import {NewStore} from '../src/screens/NewStores';
+import {LoginScreen} from '../src/screens/LoginScreen';
+
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
@@ -31,19 +33,20 @@ const DrawerNavigator = () => {
         drawerActiveBackgroundColor: '#6685A4',
         drawerActiveTintColor: '#333',
         drawerInactiveTintColor: '#fff',
-      }}>
+      }}
+    >
       <Drawer.Screen
         name="home"
         component={Home}
         options={{
-          title: ' Tiendas registradas',
+          title: 'Tiendas registradas',
         }}
       />
       <Drawer.Screen
         name="new route"
         component={NewStore}
         options={{
-          title: ' Agregar nueva ruta',
+          title: 'Agregar nueva ruta',
         }}
       />
       <Drawer.Screen
@@ -74,6 +77,13 @@ export const Navigation = () => {
           }}
         />
         <Stack.Screen
+          name="login"
+          component={LoginScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
           name="main"
           component={DrawerNavigator}
           options={{
@@ -89,4 +99,3 @@ export const Navigation = () => {
     </NavigationContainer>
   );
 };
-
