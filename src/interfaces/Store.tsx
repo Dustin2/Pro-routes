@@ -1,3 +1,5 @@
+import { Timestamp } from "react-native-reanimated/lib/typescript/reanimated2/commonTypes";
+
 export interface Store {
   id: string;
   storeName: string;
@@ -5,5 +7,9 @@ export interface Store {
   latitude: number;
   longitude: number;
   phoneNumber: string;
-  createdDoc: any; // Ajusta el tipo según sea necesario
+  createdDoc: Timestamp; // Ajusta el tipo según sea necesario
+  freezerSize: string;
+  FrezzerAmount: number;
+  daysOfWeek: number;
+  visitBeforeOf: Date;
 }

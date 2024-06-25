@@ -1,29 +1,19 @@
 import React, { useState, useEffect } from 'react';
-
-//interfaces
 import { Store } from '../interfaces/Store';
-
-//firebase
 import { database } from '../../firebase/Config';
-import {
-  collection,
-  onSnapshot,
-  query,
-  orderBy,
-} from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 export const useGetData = () => {
   const [stores, setStores] = useState<Store[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const q = query(
-      collection(database, 'info-stores'),
-      orderBy('storeName', 'desc'),
-    );
+    const q = query(collection(database, 'info-stores'), orderBy('storeName', 'desc'));
 
-    const unsubscribe = onSnapshot(q,
-      (querySnapshot) => {
+    const unsubscribe = onSnapshot(
+      q,
+      querySnapshot => {
         const storesList: Store[] = querySnapshot.docs.map(doc => ({
           id: doc.id,
           storeName: doc.data().storeName,
@@ -37,23 +27,24 @@ export const useGetData = () => {
           bag15kg: doc.data().bag15kg,
           freezerSize: doc.data().freezerSize,
           FrezzerAmount: doc.data().FrezzerAmount,
+          daysOfWeek: doc.data().daysOfWeek,
+          visitBeforeOf: doc.data().visitBeforeOf,
           createdDoc: doc.data().createdDoc,
         }));
         setStores(storesList);
+        setLoading(false);
       },
-      (error) => {
-        console.error("Error fetching data: ", error);
-        setError("Error fetching data");
+      err => {
+        console.error(err);
+        setError(err.message);
+        setLoading(false);
       }
     );
 
     return () => unsubscribe();
   }, []);
 
-  return {
-    stores,
-    error,
-  };
+  return { stores, error, loading };
 };
 
 export default useGetData;
