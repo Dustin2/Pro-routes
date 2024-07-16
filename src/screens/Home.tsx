@@ -1,5 +1,5 @@
 //core
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, SafeAreaView, FlatList} from 'react-native';
 
 //rn-paper
@@ -25,12 +25,56 @@ import {Store} from '../interfaces/Store';
 //functions
 import {getDaysOfWeek} from '../functions/getDaysOfWeek';
 
+//async Storage
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// NetInfo
+import NetInfo from '@react-native-community/netinfo';
 
 export const Home = () => {
   const navigation = useNavigation();
   const [expanded, setExpanded] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const {stores} = useGetData();
+  const [stores, setStores] = useState<Store[]>([]);
+
+  const {stores: fetchedStores} = useGetData();
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (state.isConnected) {
+        // If connected to the internet, save fetched stores to state and AsyncStorage
+        setStores(fetchedStores);
+        saveStoresToStorage(fetchedStores);
+      } else {
+        // If not connected, load stores from AsyncStorage
+        loadStoresFromStorage();
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      unsubscribe();
+    };
+  }, [fetchedStores]);
+
+  const saveStoresToStorage = async (stores: Store[]) => {
+    try {
+      const jsonValue = JSON.stringify(stores);
+      await AsyncStorage.setItem('@stores', jsonValue);
+    } catch (e) {
+      console.error("Error saving stores to AsyncStorage", e);
+    }
+  };
+
+  const loadStoresFromStorage = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('@stores');
+      setStores(jsonValue != null ? JSON.parse(jsonValue) : []);
+    } catch (e) {
+      console.error("Error loading stores from AsyncStorage", e);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -39,6 +83,7 @@ export const Home = () => {
       console.error(error);
     }
   };
+
   const handleEdit = (store: Store) => {
     navigation.navigate('editStore', {store});
   };

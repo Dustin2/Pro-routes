@@ -14,6 +14,8 @@ import {Events} from '../src/screens/Events';
 import EditStore from '../src/screens/EditStore';
 import {NewStore} from '../src/screens/NewStores';
 import {LoginScreen} from '../src/screens/LoginScreen';
+import { CButton } from '../componets/Button/CButton';
+import { CSerchBar } from '../componets/serchBar/SerchBar';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -39,7 +41,11 @@ const DrawerNavigator = () => {
         name="home"
         component={Home}
         options={{
-          title: 'Tiendas registradas',
+          title: 'Tiendas Registradas',
+          
+          // headerRight: () => (
+          //  <CSerchBar/>
+          // ),
         }}
       />
       <Drawer.Screen

@@ -1,6 +1,6 @@
 //core
 import React, {useEffect, useState} from 'react';
-import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
+import {Image, KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
 
@@ -11,11 +11,11 @@ import {TextInputcus} from '../../componets/INPUT/TextInput';
 //firebase
 import {auth} from '../../firebase/Config';
 import {signInWithEmailAndPassword, onAuthStateChanged} from 'firebase/auth';
-import { CText } from '../../componets/Text/CustomText';
+import {CText} from '../../componets/Text/CustomText';
 
 export const LoginScreen = () => {
   const navigation = useNavigation();
- 
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, user => {
       if (user) {
@@ -46,7 +46,13 @@ export const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   return (
-    <KeyboardAvoidingView style={{flex: 1, justifyContent: 'center'}}>
+    <KeyboardAvoidingView
+      style={{flex: 1, justifyContent: 'center', backgroundColor: '#0097B2'}}>
+      <View style={{fontSize: 70,}}>
+        <CText text="Pro Hielo" color="white" />
+      </View>
+     
+
       <View style={{padding: 12}}>
         <TextInputcus
           label="Email"
@@ -62,8 +68,9 @@ export const LoginScreen = () => {
           value={password}
         />
         <CButton text="Ingresar" mode="contained" onPress={handleLogin} />
-        {errorMessage ? <CText style={styles.errorText} >{errorMessage}</CText> : null}
-
+        {errorMessage ? (
+          <CText style={styles.errorText}>{errorMessage}</CText>
+        ) : null}
       </View>
     </KeyboardAvoidingView>
   );

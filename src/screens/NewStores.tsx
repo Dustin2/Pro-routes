@@ -10,7 +10,7 @@ import {format} from '@formkit/tempo';
 import {Picker} from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 //componets
-import CButton from '../../componets/Button/CButton';
+import {CButton} from '../../componets/Button/CButton';
 import {TextInputcus} from '../../componets/INPUT/TextInput';
 import {CText} from '../../componets/Text/CustomText';
 
