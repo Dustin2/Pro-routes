@@ -3,6 +3,7 @@ import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 
 // Screens
 import {Home} from '../src/screens/Home';
@@ -14,11 +15,12 @@ import {Events} from '../src/screens/Events';
 import EditStore from '../src/screens/EditStore';
 import {NewStore} from '../src/screens/NewStores';
 import {LoginScreen} from '../src/screens/LoginScreen';
-import { CButton } from '../componets/Button/CButton';
-import { CSerchBar } from '../componets/serchBar/SerchBar';
+import {CButton} from '../componets/Button/CButton';
+import {CSerchBar} from '../componets/serchBar/SerchBar';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+const Tab = createMaterialTopTabNavigator();
 
 const DrawerNavigator = () => {
   return (
@@ -35,14 +37,13 @@ const DrawerNavigator = () => {
         drawerActiveBackgroundColor: '#6685A4',
         drawerActiveTintColor: '#333',
         drawerInactiveTintColor: '#fff',
-      }}
-    >
+      }}>
       <Drawer.Screen
         name="home"
         component={Home}
         options={{
           title: 'Tiendas Registradas',
-          
+
           // headerRight: () => (
           //  <CSerchBar/>
           // ),
@@ -70,7 +71,15 @@ const DrawerNavigator = () => {
     </Drawer.Navigator>
   );
 };
-
+const TabsNavigator =()=>{
+  return(
+    <Tab.Navigator>
+      <Tab.Screen  name='home' component={Home}/>
+      <Tab.Screen  name='new route' component={NewStore}/>
+      <Tab.Screen  name='map' component={MapsStores}/>
+    </Tab.Navigator>
+  )
+}
 export const Navigation = () => {
   return (
     <NavigationContainer>
@@ -91,7 +100,7 @@ export const Navigation = () => {
         />
         <Stack.Screen
           name="main"
-          component={DrawerNavigator}
+          component={TabsNavigator}
           options={{
             headerShown: false,
           }}
